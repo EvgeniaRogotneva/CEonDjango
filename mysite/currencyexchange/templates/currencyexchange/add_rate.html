@@ -1,0 +1,16 @@
+{% extends 'currencyexchange/base.html' %}
+
+{% block title %}
+{{ title}}
+{% endblock %}
+
+{% block content %}
+    <h1>'добавим рейтиков'</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.currency_code }}
+        {{ form.time }}
+        {{ form.rate }}
+        <p><button type="submit", class="btn btn-success">Добавить</button> </p>
+    </form>
+{% endblock %}

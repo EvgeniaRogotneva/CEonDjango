@@ -1,0 +1,16 @@
+{% extends 'currencyexchange/base.html' %}
+
+{% block title %}
+{{ title}}
+{% endblock %}
+
+{% block content %}
+    <h1>'выберите пару, чтобы узнать их курс'</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.from_currency_code }}
+        {{ form.to_currency_code }}
+        {{ form.time }}
+        <p><button type="submit", class="btn btn-success">Узнать</button> </p>
+    </form>
+{% endblock %}
