@@ -6,8 +6,6 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
 django.setup()
 
 from currencyexchange.forms import AddRate, GetRate
-from currencyexchange.models import TimeAndCourse
-from currencyexchange.views import erase_all
 
 
 class FormTestCase(TestCase):
@@ -33,6 +31,5 @@ class FormTestCase(TestCase):
     def test_negative_rate_add_rate(self):
         data = {'currency_code': 'USD', 'time': datetime.now(), 'rate': -15}
         answer = AddRate(data)
-
         self.assertEqual(answer.is_valid(), False)
 

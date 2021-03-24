@@ -1,5 +1,6 @@
 from .models import TimeAndCourse
 from django.forms import ModelForm, NumberInput, Select, SelectDateWidget, Form, CharField, DateTimeInput, DateField
+from django.core.exceptions import ValidationError
 from .all_currencies import all_currencies
 from datetime import datetime, date, time
 import pytz
@@ -20,6 +21,7 @@ def time_in_past_or_present(timestamp):
 
 
 class Validate(Form):
+    '''
     def is_valid(self):
         if super().is_valid():
             if not time_in_past_or_present(self.cleaned_data['time']):
@@ -29,7 +31,17 @@ class Validate(Form):
                 super().add_errors('rate', 'rate should be bigger than zero')
                 return False
             return True
+    '''
 
+    def clean_time(self):
+        if not time_in_past_or_present(self.cleaned_data['time']):
+            raise ValidationError('date should be in past or present, not future')
+        return self.cleaned_data['time']
+
+    def clean_rate(self):
+        if self.cleaned_data['rate'] <= 0:
+            raise ValidationError('rate should be bigger than zero')
+        return self.cleaned_data['rate']
 
 class AddRate(ModelForm, Validate):
     class Meta:
