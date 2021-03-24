@@ -5,6 +5,7 @@ from .models import TimeAndCourse
 from .forms import AddRate, GetRate
 import pytz
 
+
 def get_ten_rates():
     return TimeAndCourse.objects.order_by('-id')[:10]
 
@@ -14,16 +15,17 @@ def index(request):
 
 
 def add_rate(request):
-    errors = None
     print('we are in add rate view')
     if request.method == "POST":
+        print('flag1')
         form = AddRate(request.POST)
         if form.is_valid():
+            print('flag2')
             form.save()
-            # return render(request, 'currencyexchange/index.html', {'errors': errors, 'rates': get_ten_rates()})
-        else:
-            errors = form.get_errors()
-    return render(request, 'currencyexchange/index.html', {'errors': errors, 'rates': get_ten_rates()})
+            return redirect('index')
+    form = AddRate()
+    context = {'form': form}
+    return render(request, 'currencyexchange/add_rate.html', context)
 
 
 def get_rate_from_bd_with_date(currency_code, time):

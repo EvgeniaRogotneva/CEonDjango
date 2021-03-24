@@ -5,12 +5,12 @@
 {% endblock %}
 
 {% block content %}
-    <h1>'добавим рейтиков'</h1>
+    <h1>'Add rates'</h1>
     <form method="post">
         {% csrf_token %}
         {{ form.currency_code }}
         {{ form.time }}
         {{ form.rate }}
-        <p><button type="submit", class="btn btn-success">Добавить</button> </p>
+        <p><button type="submit", class="btn btn-success">Add</button> </p>
     </form>
 {% endblock %}

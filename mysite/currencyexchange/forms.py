@@ -43,11 +43,12 @@ class Validate(Form):
             raise ValidationError('rate should be bigger than zero')
         return self.cleaned_data['rate']
 
+
 class AddRate(ModelForm, Validate):
     class Meta:
          model = TimeAndCourse
          fields = ["currency_code", "time", "rate"]
-         widgets = {"currency_code": Select(choices=all_currencies, attrs={'class': 'form-control', 'placeholder': "введите три буквы кода валюты"}),
+         widgets = {"currency_code": Select(choices=all_currencies, attrs={'class': 'form-control'}),
                     "time": DateTimeInput(attrs={'class': 'form-control', 'placeholder': "2021-03-05 13:19:13+00:00"}),
                     "rate": NumberInput(attrs={'class': 'form-control', 'placeholder': "0.0"}),}
 
