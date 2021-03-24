@@ -1,13 +1,9 @@
-from django.http import HttpResponseRedirect, HttpResponse, HttpRequest
-from django.shortcuts import get_object_or_404, render, redirect
-from django.urls import reverse
-from django.views import generic
-from datetime import datetime
-from django.db.models.query import EmptyQuerySet
-
+from django.http import HttpRequest
+from django.shortcuts import render, redirect
+from datetime import datetime, timezone
 from .models import TimeAndCourse
-from .forms import TaskForm, GetRate
-
+from .forms import AddRate, GetRate
+import pytz
 
 def get_ten_rates():
     return TimeAndCourse.objects.order_by('-id')[:10]
@@ -18,16 +14,16 @@ def index(request):
 
 
 def add_rate(request):
+    errors = None
+    print('we are in add rate view')
     if request.method == "POST":
-        form = TaskForm(request.POST)
+        form = AddRate(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('index')
+            # return render(request, 'currencyexchange/index.html', {'errors': errors, 'rates': get_ten_rates()})
         else:
-            error = 'форма не верна'
-    form = TaskForm()
-    context = {'form': form}
-    return render(request, 'currencyexchange/add_rate.html', context)
+            errors = form.get_errors()
+    return render(request, 'currencyexchange/index.html', {'errors': errors, 'rates': get_ten_rates()})
 
 
 def get_rate_from_bd_with_date(currency_code, time):

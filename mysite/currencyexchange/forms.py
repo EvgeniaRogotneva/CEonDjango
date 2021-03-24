@@ -1,9 +1,37 @@
 from .models import TimeAndCourse
 from django.forms import ModelForm, NumberInput, Select, SelectDateWidget, Form, CharField, DateTimeInput, DateField
 from .all_currencies import all_currencies
+from datetime import datetime, date, time
+import pytz
 
 
-class TaskForm(ModelForm):
+def time_in_past_or_present(timestamp):
+    now = datetime.utcnow()
+    now = now.replace(tzinfo=pytz.utc)
+    if type(timestamp) == date:
+        now_time = time()
+        added = datetime.combine(timestamp, now_time)
+        added = added.replace(tzinfo=pytz.utc)
+    else:
+        added = timestamp.replace(tzinfo=pytz.utc)
+    if added > now:
+        return False
+    return True
+
+
+class Validate(Form):
+    def is_valid(self):
+        if super().is_valid():
+            if not time_in_past_or_present(self.cleaned_data['time']):
+                super().add_errors('time', 'date should be in past or present, not future')
+                return False
+            if not self.cleaned_data['rate'] > 0:
+                super().add_errors('rate', 'rate should be bigger than zero')
+                return False
+            return True
+
+
+class AddRate(ModelForm, Validate):
     class Meta:
          model = TimeAndCourse
          fields = ["currency_code", "time", "rate"]
@@ -12,9 +40,8 @@ class TaskForm(ModelForm):
                     "rate": NumberInput(attrs={'class': 'form-control', 'placeholder': "0.0"}),}
 
 
-class GetRate(Form):
+class GetRate(Validate):
     from_currency_code = CharField(widget=Select(choices=all_currencies, attrs={'class': 'form-control'}))
     to_currency_code = CharField(widget=Select(choices=all_currencies, attrs={'class': 'form-control'}))
     time = DateField(widget=SelectDateWidget(attrs={'class': 'form-control'}))
-
 
