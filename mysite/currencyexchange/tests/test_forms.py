@@ -33,3 +33,16 @@ class FormTestCase(TestCase):
         answer = AddRate(data)
         self.assertEqual(answer.is_valid(), False)
 
+    def test_get_pair_with_different_date(self):
+        data = {'currency_code': 'USD', 'time': '2021-03-05 13:19:13+00:00', 'rate': 75}
+        answer = AddRate(data)
+        self.assertEqual(answer.is_valid(), True)
+        data = {'currency_code': 'RUB', 'time': '2021-03-09 13:19:13+00:00', 'rate': 1}
+        answer = AddRate(data)
+        self.assertEqual(answer.is_valid(), True)
+        data = {'from_currency_code': 'USD', 'to_currency_code': 'RUB', 'time': datetime.fromisoformat('2021-03-09 13:19:13+00:00')}
+        answer = GetRate(data)
+        print(answer)
+        self.assertEqual(answer.is_valid(), True)
+
+

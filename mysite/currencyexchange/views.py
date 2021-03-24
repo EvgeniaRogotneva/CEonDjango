@@ -16,15 +16,15 @@ def index(request):
 
 def add_rate(request):
     print('we are in add rate view')
+    errors = None
     if request.method == "POST":
-        print('flag1')
         form = AddRate(request.POST)
         if form.is_valid():
-            print('flag2')
             form.save()
             return redirect('index')
+        errors = form.errors
     form = AddRate()
-    context = {'form': form}
+    context = {'form': form, 'errors': errors, 'rates': get_ten_rates()}
     return render(request, 'currencyexchange/add_rate.html', context)
 
 
