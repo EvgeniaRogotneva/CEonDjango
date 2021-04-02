@@ -10,9 +10,6 @@ from currencyexchange.forms import AddRate, GetRate
 
 class FormTestCase(TestCase):
 
-    def setUp(self):
-        self.client = Client()
-
     def test_future_date_add_rate(self):
         data = {'currency_code': 'USD', 'time': datetime.now() + timedelta(days=30), 'rate': 30}
         answer = AddRate(data)

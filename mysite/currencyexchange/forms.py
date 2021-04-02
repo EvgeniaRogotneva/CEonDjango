@@ -21,18 +21,6 @@ def time_in_past_or_present(timestamp):
 
 
 class Validate(Form):
-    '''
-    def is_valid(self):
-        if super().is_valid():
-            if not time_in_past_or_present(self.cleaned_data['time']):
-                super().add_errors('time', 'date should be in past or present, not future')
-                return False
-            if not self.cleaned_data['rate'] > 0:
-                super().add_errors('rate', 'rate should be bigger than zero')
-                return False
-            return True
-    '''
-
     def clean_time(self):
         if not time_in_past_or_present(self.cleaned_data['time']):
             raise ValidationError('date should be in past or present, not future')
