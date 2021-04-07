@@ -22,8 +22,11 @@ def time_in_past_or_present(timestamp):
 
 class Validate(Form):
     def clean_time(self):
+        print('clean time')
         if not time_in_past_or_present(self.cleaned_data['time']):
+            print('wrong time')
             raise ValidationError('date should be in past or present, not future')
+        print('good time')
         return self.cleaned_data['time']
 
     def clean_rate(self):
@@ -46,3 +49,8 @@ class GetRate(Validate):
     to_currency_code = CharField(widget=Select(choices=all_currencies, attrs={'class': 'form-control'}))
     time = DateField(widget=SelectDateWidget(attrs={'class': 'form-control'}))
 
+
+class GetRateByApi(Validate):
+    from_currency_code = CharField()
+    to_currency_code = CharField()
+    time = DateField()

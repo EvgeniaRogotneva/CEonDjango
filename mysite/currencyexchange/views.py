@@ -2,7 +2,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
 from datetime import datetime, timezone
 from .models import TimeAndCourse
-from .forms import AddRate, GetRate
+from .forms import AddRate, GetRate, GetRateByApi
 import pytz
 import json
 
@@ -43,19 +43,50 @@ def add_rate(request):
 
 
 def get_rate_from_bd_with_date(currency_code, time):
+    print('get currency from bd')
+    print(currency_code, time)
     rate = TimeAndCourse.objects.filter(currency_code=currency_code).filter(time__lte=time).order_by('-time')
+    print('rate', rate)
+    print('TimeAndCourse.objects.all', TimeAndCourse.objects.all())
     if rate.count():
         return rate[0]
     else:
         return None
 
 
+def get_rate_for_pair_by_api(request: HttpRequest):
+    if request.method == "POST" and request.content_type == 'application/json':
+        content = json.loads(request.body.decode())
+        print('content', content)
+        print('date type', type(content['time']))
+        content['time'] = datetime.fromisoformat(content['time'])
+        print('content', content)
+        print('date type', type(content['time']))
+        form = GetRateByApi(content)
+        print(form)
+        answer = None
+        if form.is_valid():
+            print('from_currency_code', form.cleaned_data['from_currency_code'])
+            print('to_currency_code', form.cleaned_data['to_currency_code'])
+            print('cleaned date', form.cleaned_data)
+            print('time', form.cleaned_data['time'])
+
+            from_rate = get_rate_from_bd_with_date(form.cleaned_data['from_currency_code'], content['time'])
+            to_rate = get_rate_from_bd_with_date(form.cleaned_data['to_currency_code'], content['time'])
+            print('from_rate', from_rate)
+            print('to_rate', to_rate)
+            if from_rate and to_rate:
+                print('both currencies are here')
+                rate = from_rate.rate / to_rate.rate
+                answer = '1 ' + from_rate.currency_code + ' equals ' + str(rate) + ' ' + to_rate.currency_code
+            else:
+                errors = 'I do not have enough information about currencies rate'
+            return HttpResponse(answer, status=200)
+        return HttpResponse(form.errors, status=400)
+
+
 def get_rate_for_pair(request: HttpRequest):
     if request.method == "POST":
-        print('request.content_type', request.content_type)
-        if request.content_type == 'application/json':
-            print('we are here')
-            return HttpResponse('we received your json')
         form = GetRate(request.POST)
         errors = None
         answer = None
