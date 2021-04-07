@@ -1,5 +1,5 @@
 from .models import TimeAndCourse
-from django.forms import ModelForm, NumberInput, Select, SelectDateWidget, Form, CharField, DateTimeInput, DateField
+from django.forms import ModelForm, NumberInput, Select, SelectDateWidget, Form, CharField, DateTimeInput, DateField, DateTimeField
 from django.core.exceptions import ValidationError
 from .all_currencies import all_currencies
 from datetime import datetime, date, time
@@ -53,4 +53,4 @@ class GetRate(Validate):
 class GetRateByApi(Validate):
     from_currency_code = CharField()
     to_currency_code = CharField()
-    time = DateField()
+    time = DateTimeField()

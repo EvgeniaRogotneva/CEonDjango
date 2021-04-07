@@ -35,32 +35,7 @@ class ClientRequestTestCase(TestCase):
         self.factory = RequestFactory()
         self.request = HttpRequest()
 
-    def test_add_rate(self):
-        request = HttpRequest()
-
-        data = {
-            "currency_code": "USD",
-            "time": "2021-03-05 13:19:13+00:00",
-            "rate": 1500
-            }
-        
-        json_data = json.dumps(data)
-        print('json', json_data)
-        q = QueryDict(json_data, mutable=True)
-
-        # data = 'currency_code=USD&time=2021-03-05 13:19:13+00:00&rate=150'
-        # q = QueryDict(data, mutable=True)
-        print(q)
-        request.POST = q
-        response = self.client.post(path='/add_rate', data=request.POST)
-        print('headers',response.content)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/currencyexchange/')
-        response = self.client.get('/get_rate_for_pair', {'from_currency_code': 'USD', 'to_currency_code': 'RUB',
-                                                          'time': '2021-03-05 13:19:13+00:00'})
-        print(response)
-
-    def test_add_rate_by_api(self):
+    def test_add_and_get_rate_by_api(self):
         data = {
             "currency_code": "USD",
             "time": "2021-03-05 13:19:13+00:00",
