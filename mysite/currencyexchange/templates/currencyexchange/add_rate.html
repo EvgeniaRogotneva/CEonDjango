@@ -5,6 +5,16 @@
 {% endblock %}
 
 {% block content %}
+    {% block error %}
+        {% if errors %}
+        <h1>Error: {{ errors }} </h1>
+        {% endif %}
+    {% endblock %}
+    {% block response %}
+        {% if response %}
+            <p>{{ response }}</p>
+        {% endif %}
+    {% endblock %}
     <h1>'Add rates'</h1>
     <form method="post">
         {% csrf_token %}

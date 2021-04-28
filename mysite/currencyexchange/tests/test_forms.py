@@ -39,7 +39,7 @@ class FormTestCase(TestCase):
         self.assertEqual(answer.is_valid(), True)
         data = {'from_currency_code': 'USD', 'to_currency_code': 'RUB', 'time': datetime.fromisoformat('2021-03-09 13:19:13+00:00')}
         answer = GetRate(data)
-        print(answer)
+        #print(answer)
         self.assertEqual(answer.is_valid(), True)
 
 

@@ -3,13 +3,12 @@
 import os
 import sys
 import django
-print('manage.py is run0')
 
 
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
-    print('manage.py is run1')
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -23,4 +22,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-    print('manage.py is run3')
+
