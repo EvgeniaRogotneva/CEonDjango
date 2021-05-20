@@ -19,6 +19,28 @@
 <div>
 
 </div>
-{% block content %}{% endblock %}
+{% block content %}
+    {% block error %}
+        {% if errors %}
+        <h1>Error: {{ errors }} </h1>
+        {% endif %}
+    {% endblock %}
+    {% block answer %}
+        {% if answer %}
+            <p>{{answer}}</p>
+        {% endif %}
+    {% endblock %}
+    {% if rates %}
+        <h1>we already has info about</h1>
+        {% for rate in rates %}
+            <div>
+                <p>{{ rate.currency_code }}': '{{ rate.rate }}' RUBles on '{{rate.time}}
+                </p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>We do not have any info about rates, sorry...</p>
+    {% endif %}
+{% endblock %}
 </body>
 </html>

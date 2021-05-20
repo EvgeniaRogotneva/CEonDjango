@@ -21,6 +21,6 @@ class FieldsTestCase(TestCase):
 
     def test_get_rate_for_pair(self):
         rate = TimeAndCourse.objects.values()
-        print(rate)
+
 
 
