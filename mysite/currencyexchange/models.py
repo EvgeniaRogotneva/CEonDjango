@@ -19,9 +19,6 @@ class TimeAndCourse(models.Model):
     objects = GetRate()
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['id'], name='unique id')
-        ]
         indexes = [
             models.Index(fields=['time'])
         ]

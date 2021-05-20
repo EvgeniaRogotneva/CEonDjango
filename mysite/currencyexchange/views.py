@@ -9,7 +9,7 @@ import json
 
 def request_validation(func):
     def wrapper(request):
-        if request.method != "POST":
+        if request.method != "POST" or request.content_type != 'application/json':
             response = json.dumps({'response': 'I receive only POST request with json content type'})
             return HttpResponse(response, status=400)
         return func(request)
@@ -55,27 +55,23 @@ def add_rate(request):
 
 @request_validation
 def get_rate_for_pair_by_api(request: HttpRequest):
-    if request.content_type == 'application/json':
-        content = json.loads(request.body.decode())
-        content['time'] = datetime.fromisoformat(content['time'])
-        form = GetRateByApi(content)
-        if form.is_valid():
-            from_rate = TimeAndCourse.objects.get_rate_from_bd_with_date(
-                form.cleaned_data['from_currency_code'], form.cleaned_data['time'])
-            to_rate = TimeAndCourse.objects.get_rate_from_bd_with_date(
-                form.cleaned_data['to_currency_code'], form.cleaned_data['time'])
-            if from_rate and to_rate:
-                rate = from_rate.rate / to_rate.rate
-                response = json.dumps(
-                    {'response': '1 ' + from_rate.currency_code + ' equals ' + str(rate) + ' ' + to_rate.currency_code})
-            else:
-                response = json.dumps({'response': 'I do not have enough information about currencies rate'})
+    content = json.loads(request.body.decode())
+    content['time'] = datetime.fromisoformat(content['time'])
+    form = GetRateByApi(content)
+    if form.is_valid():
+        from_rate = TimeAndCourse.objects.get_rate_from_bd_with_date(
+            form.cleaned_data['from_currency_code'], form.cleaned_data['time'])
+        to_rate = TimeAndCourse.objects.get_rate_from_bd_with_date(
+            form.cleaned_data['to_currency_code'], form.cleaned_data['time'])
+        if from_rate and to_rate:
+            rate = from_rate.rate / to_rate.rate
+            response = json.dumps(
+                {'response': '1 ' + from_rate.currency_code + ' equals ' + str(rate) + ' ' + to_rate.currency_code})
+        else:
+            response = json.dumps({'response': 'I do not have enough information about currencies rate'})
 
-            return HttpResponse(response, status=200)
-        return HttpResponse(form.errors, status=400)
-
-    response = json.dumps({'response': 'I receive only POST request with json content type'})
-    return HttpResponse(response, status=400)
+        return HttpResponse(response, status=200)
+    return HttpResponse(form.errors, status=400)
 
 
 def get_rate_for_pair(request: HttpRequest):
