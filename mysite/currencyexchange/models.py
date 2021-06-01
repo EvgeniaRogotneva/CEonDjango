@@ -1,5 +1,10 @@
 from django.db import models
 import mysite.settings
+from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, PermissionsMixin)
+from datetime import datetime, timedelta
+import jwt
+from django.conf import settings
+from django.contrib.auth.models import User
 
 
 class GetRate(models.Manager):
@@ -26,3 +31,7 @@ class TimeAndCourse(models.Model):
     def __str__(self):
         return 'currency: ' + self.currency_code + ', timestamp: ' + str(self.time) + ', rate: ' + str(self.rate)
 
+
+class Key(models.Model):
+    key = models.CharField(max_length=300, name='key')
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
