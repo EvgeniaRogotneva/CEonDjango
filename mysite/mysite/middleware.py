@@ -11,13 +11,13 @@ class FirstMiddleware:
             return self._get_response(request)
 
         if request.path == '/api/create_user':
-            key = Key.objects.filter(key=request.headers['Key'])
+            key = Key.objects.filter(key=request.headers['Api-User-Key'])
             if not key.first():
                 return HttpResponse(b'{"Error": "You do not have permission to add users"}', status=400)
             if not key.first().user_id.is_superuser:
                 return HttpResponse(b'{"Error": "You do not have permission to add users"}', status=400)
 
-        key = Key.objects.get(key=request.headers['Key'])
+        key = Key.objects.get(key=request.headers['Api-User-Key'])
         if not key:
             return HttpResponse(b'{"Error": "You do not have permission to send request"}', status=400)
         return self._get_response(request)

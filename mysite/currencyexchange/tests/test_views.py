@@ -46,7 +46,7 @@ class ClientRequestTestCase(TestCase):
         data = {'username': 'IvanIvanov', 'email': 'ivanov.ivan@mail.ru', 'password': 'ivanMolodec',
                 'key': 'IvanTsarevich'}
         response = self.client.post(data=data, content_type='application/json', path='/api/create_user',
-                                    HTTP_KEY='BigBossIsHere')
+                                    HTTP_API_USER_KEY='BigBossIsHere')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'{"Response": "User IvanIvanov has been added"}')
 
@@ -57,7 +57,7 @@ class ClientRequestTestCase(TestCase):
             "rate": 1500
         }
         response = self.client.post(path='/api/add_rate_by_api', data=data, content_type='application/json',
-                                    HTTP_KEY="IvanTsarevich")
+                                    HTTP_API_USER_KEY="IvanTsarevich")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'{"response": "Rate has been added"}')
         data = {
@@ -66,7 +66,7 @@ class ClientRequestTestCase(TestCase):
             "rate": 1
         }
         response = self.client.post(path='/api/add_rate_by_api', data=data, content_type='application/json',
-                                    HTTP_KEY="IvanTsarevich")
+                                    HTTP_API_USER_KEY="IvanTsarevich")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'{"response": "Rate has been added"}')
         data = {
@@ -76,7 +76,7 @@ class ClientRequestTestCase(TestCase):
         }
 
         response = self.client.post('/api/get_rate_for_pair_by_api', data=data, content_type='application/json',
-                                    HTTP_KEY="IvanTsarevich")
+                                    HTTP_API_USER_KEY="IvanTsarevich")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'{"response": "1 USD equals 1500.0 RUB"}')
 
@@ -87,7 +87,7 @@ class ClientRequestTestCase(TestCase):
             "rate": 1500
         }
         response = self.client.get(path='/api/add_rate_by_api', data=data, content_type='application/json',
-                                   HTTP_KEY="IvanTsarevich")
+                                   HTTP_API_USER_KEY="IvanTsarevich")
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content, b'{"response": "I receive only POST request with json content type"}')
 
@@ -98,7 +98,7 @@ class ClientRequestTestCase(TestCase):
             "rate": 0
         }
         response = self.client.post(path='/api/add_rate_by_api', data=data, content_type='application/json',
-                                    HTTP_KEY="IvanTsarevich")
+                                    HTTP_API_USER_KEY="IvanTsarevich")
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content, b'{"rate": [{"message": "rate should be bigger than zero", "code": ""}]}')
 

@@ -24,7 +24,7 @@ class AuthTests(TestCase):
         data = {'username': 'IvanIvanov', 'email': 'ivanov.ivan@mail.ru', 'password': 'ivanMolodec',
                 'key': 'IvanTsarevich'}
         response = self.client.post(data=data, content_type='application/json', path='/api/create_user',
-                                    HTTP_KEY='BigBossIsHere')
+                                    HTTP_API_USER_KEY='BigBossIsHere')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'{"Response": "User IvanIvanov has been added"}')
 
@@ -32,7 +32,7 @@ class AuthTests(TestCase):
         data = {'username': 'PetrPetrov', 'email': 'petrov.petr@mail.ru', 'password': 'PetrMolodec',
                 'key': 'PetrPervij'}
         response = self.client.post(data=data, content_type='application/json', path='/api/create_user',
-                                    HTTP_KEY='BigBossIsHere')
+                                    HTTP_API_USER_KEY='BigBossIsHere')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'{"Response": "User PetrPetrov has been added"}')
 
@@ -41,7 +41,7 @@ class AuthTests(TestCase):
                 'key': 'IvanTsarevich'}
 
         response = self.client.post(data=data, content_type='application/json', path='/api/create_user',
-                                    HTTP_KEY='smth_wrong')
+                                    HTTP_API_USER_KEY='smth_wrong')
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content, b'{"Error": "You do not have permission to add users"}')
 
