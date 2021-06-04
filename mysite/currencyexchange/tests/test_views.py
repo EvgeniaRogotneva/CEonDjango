@@ -44,7 +44,7 @@ class ClientRequestTestCase(TestCase):
         self.key = Key(user_id=self.superuser, key='BigBossIsHere')
         self.key.save()
         data = {'username': 'IvanIvanov', 'email': 'ivanov.ivan@mail.ru', 'password': 'ivanMolodec',
-                'key': 'IvanTsarevich', 'admin_key': 'BigBossIsHere'}
+                'key': 'IvanTsarevich'}
         response = self.client.post(data=data, content_type='application/json', path='/api/create_user',
                                     HTTP_KEY='BigBossIsHere')
         self.assertEqual(response.status_code, 200)

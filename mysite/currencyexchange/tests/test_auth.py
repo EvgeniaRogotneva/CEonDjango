@@ -13,6 +13,7 @@ auth_headers = {
     'HTTP_AUTHORIZATION': b'Basic ' + base64.b64encode(b'username:password'),
 }
 
+
 class AuthTests(TestCase):
     def setUp(self):
         self.client = Client()
@@ -26,7 +27,6 @@ class AuthTests(TestCase):
                                     HTTP_KEY='BigBossIsHere')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'{"Response": "User IvanIvanov has been added"}')
-
 
     def test_create_user_by_super(self):
         data = {'username': 'PetrPetrov', 'email': 'petrov.petr@mail.ru', 'password': 'PetrMolodec',
