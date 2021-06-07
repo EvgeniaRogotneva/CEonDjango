@@ -17,16 +17,16 @@ auth_headers = {
 class AuthTests(TestCase):
     def setUp(self):
         self.client = Client()
-        self.superuser = User(is_superuser=True, username='BigBoss', email='big@boss.com', password='GodBlessYou')
-        self.superuser.save()
-        self.key = Key(user_id=self.superuser, key='BigBossIsHere')
-        self.key.save()
-        data = {'username': 'IvanIvanov', 'email': 'ivanov.ivan@mail.ru', 'password': 'ivanMolodec',
-                'key': 'IvanTsarevich'}
-        response = self.client.post(data=data, content_type='application/json', path='/api/create_user',
-                                    HTTP_API_USER_KEY='BigBossIsHere')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, b'{"Response": "User IvanIvanov has been added"}')
+        #self.superuser = User(is_superuser=True, username='BigBoss', email='big@boss.com', password='GodBlessYou')
+        #self.superuser.save()
+        #self.key = Key(user=self.superuser, key='BigBossIsHere')
+        #self.key.save()
+        #data = {'username': 'IvanIvanov', 'email': 'ivanov.ivan@mail.ru', 'password': 'ivanMolodec',
+        #        'key': 'IvanTsarevich'}
+        #response = self.client.post(data=data, content_type='application/json', path='/api/create_user',
+        #                            HTTP_API_USER_KEY='BigBossIsHere')
+        #self.assertEqual(response.status_code, 200)
+        #self.assertEqual(response.content, b'{"Response": "User IvanIvanov has been added"}')
 
     def test_create_user_by_super(self):
         data = {'username': 'PetrPetrov', 'email': 'petrov.petr@mail.ru', 'password': 'PetrMolodec',
@@ -44,9 +44,3 @@ class AuthTests(TestCase):
                                     HTTP_API_USER_KEY='smth_wrong')
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content, b'{"Error": "You do not have permission to add users"}')
-
-
-
-
-
-
