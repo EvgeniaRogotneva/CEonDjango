@@ -10,7 +10,7 @@ django.setup()
 from currencyexchange.views import erase_all
 from django.contrib.auth.models import User
 from currencyexchange.models import Key
-
+from currencyexchange.tests.test_auth import add_user_and_key_to_bd, remove_keys_and_users
 class UrlAvailableTestCase(TestCase):
 
     def setUp(self):
@@ -34,21 +34,19 @@ class UrlAvailableTestCase(TestCase):
 
 
 class ClientRequestTestCase(TestCase):
+    @classmethod
+    def tearDownClass(cls):
+        remove_keys_and_users()
+
+    @classmethod
+    def setUpTestData(cls):
+        add_user_and_key_to_bd('IvanIvanov', 'Ivan', 'Ivanov', 'ivanMolodec', 'ivanov.ivan@mail.ru',
+                               False, False, True, '07.08.2021')
     def setUp(self):
         erase_all(HttpRequest())
         self.client = Client()
         self.factory = RequestFactory()
         self.request = HttpRequest()
-        #self.superuser = User(is_superuser=True, username='BigBoss', email='big@boss.com', password='GodBlessYou')
-        #self.superuser.save()
-        #self.key = Key(user=self.superuser, key='BigBossIsHere')
-        #self.key.save()
-        #data = {'username': 'IvanIvanov', 'email': 'ivanov.ivan@mail.ru', 'password': 'ivanMolodec',
-        #        'key': 'IvanTsarevich'}
-        #response = self.client.post(data=data, content_type='application/json', path='/api/create_user',
-        #                            HTTP_API_USER_KEY='BigBossIsHere')
-        #self.assertEqual(response.status_code, 200)
-        #self.assertEqual(response.content, b'{"Response": "User IvanIvanov has been added"}')
 
     def test_add_and_get_rate_by_api(self):
         data = {
@@ -57,7 +55,7 @@ class ClientRequestTestCase(TestCase):
             "rate": 1500
         }
         response = self.client.post(path='/api/add_rate_by_api', data=data, content_type='application/json',
-                                    HTTP_API_USER_KEY="IvanTsarevich")
+                                    HTTP_API_USER_KEY="SXZhbkl2YW5vdg==")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'{"response": "Rate has been added"}')
         data = {
@@ -66,7 +64,7 @@ class ClientRequestTestCase(TestCase):
             "rate": 1
         }
         response = self.client.post(path='/api/add_rate_by_api', data=data, content_type='application/json',
-                                    HTTP_API_USER_KEY="IvanTsarevich")
+                                    HTTP_API_USER_KEY="SXZhbkl2YW5vdg==")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'{"response": "Rate has been added"}')
         data = {
@@ -76,7 +74,7 @@ class ClientRequestTestCase(TestCase):
         }
 
         response = self.client.post('/api/get_rate_for_pair_by_api', data=data, content_type='application/json',
-                                    HTTP_API_USER_KEY="IvanTsarevich")
+                                    HTTP_API_USER_KEY="SXZhbkl2YW5vdg==")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'{"response": "1 USD equals 1500.0 RUB"}')
 
@@ -87,7 +85,7 @@ class ClientRequestTestCase(TestCase):
             "rate": 1500
         }
         response = self.client.get(path='/api/add_rate_by_api', data=data, content_type='application/json',
-                                   HTTP_API_USER_KEY="IvanTsarevich")
+                                   HTTP_API_USER_KEY="SXZhbkl2YW5vdg==")
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content, b'{"response": "I receive only POST request with json content type"}')
 
@@ -98,7 +96,7 @@ class ClientRequestTestCase(TestCase):
             "rate": 0
         }
         response = self.client.post(path='/api/add_rate_by_api', data=data, content_type='application/json',
-                                    HTTP_API_USER_KEY="IvanTsarevich")
+                                    HTTP_API_USER_KEY="SXZhbkl2YW5vdg==")
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content, b'{"rate": [{"message": "rate should be bigger than zero", "code": ""}]}')
 

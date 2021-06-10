@@ -27,6 +27,7 @@ def index(request):
 
 @request_validation
 def add_rate_by_api(request):
+    print('request.session', request.session.get_expiry_date())
     if request.content_type == 'application/json':
         content = json.loads(request.body.decode())
         form = AddRate(content)
@@ -108,7 +109,7 @@ def create_user(request):
     data = json.loads(request.body)
     user = User.objects.create_user(data['username'], data['email'], data['password'])
     user.save()
-    key = Key(key=data['key'], user_id=user)
+    key = Key(key=data['key'], user=user)
     key.save()
     response = {'Response': 'User ' + user.get_username() + ' has been added'}
     return HttpResponse(json.dumps(response), status=200)
