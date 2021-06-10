@@ -3,11 +3,14 @@ import django, json
 from django.test import TestCase, Client, RequestFactory
 from django.http import HttpRequest, HttpResponse, QueryDict
 
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
 django.setup()
 
 from currencyexchange.views import erase_all
-
+from django.contrib.auth.models import User
+from currencyexchange.models import Key
+from currencyexchange.tests.test_auth import add_user_and_key_to_bd, remove_keys_and_users
 class UrlAvailableTestCase(TestCase):
 
     def setUp(self):
@@ -31,6 +34,14 @@ class UrlAvailableTestCase(TestCase):
 
 
 class ClientRequestTestCase(TestCase):
+    @classmethod
+    def tearDownClass(cls):
+        remove_keys_and_users()
+
+    @classmethod
+    def setUpTestData(cls):
+        add_user_and_key_to_bd('IvanIvanov', 'Ivan', 'Ivanov', 'ivanMolodec', 'ivanov.ivan@mail.ru',
+                               False, False, True, '07.08.2021')
     def setUp(self):
         erase_all(HttpRequest())
         self.client = Client()
@@ -43,7 +54,8 @@ class ClientRequestTestCase(TestCase):
             "time": "2021-03-05 13:19:13+00:00",
             "rate": 1500
         }
-        response = self.client.post(path='/api/add_rate_by_api', data=data, content_type='application/json')
+        response = self.client.post(path='/api/add_rate_by_api', data=data, content_type='application/json',
+                                    HTTP_API_USER_KEY="SXZhbkl2YW5vdg==")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'{"response": "Rate has been added"}')
         data = {
@@ -51,7 +63,8 @@ class ClientRequestTestCase(TestCase):
             "time": "2021-03-05 13:19:13+00:00",
             "rate": 1
         }
-        response = self.client.post(path='/api/add_rate_by_api', data=data, content_type='application/json')
+        response = self.client.post(path='/api/add_rate_by_api', data=data, content_type='application/json',
+                                    HTTP_API_USER_KEY="SXZhbkl2YW5vdg==")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'{"response": "Rate has been added"}')
         data = {
@@ -60,7 +73,8 @@ class ClientRequestTestCase(TestCase):
             "time": "2021-03-05 13:19:13+00:00",
         }
 
-        response = self.client.post('/api/get_rate_for_pair_by_api', data=data, content_type='application/json')
+        response = self.client.post('/api/get_rate_for_pair_by_api', data=data, content_type='application/json',
+                                    HTTP_API_USER_KEY="SXZhbkl2YW5vdg==")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'{"response": "1 USD equals 1500.0 RUB"}')
 
@@ -70,7 +84,8 @@ class ClientRequestTestCase(TestCase):
             "time": "2021-03-05 13:19:13+00:00",
             "rate": 1500
         }
-        response = self.client.get(path='/api/add_rate_by_api', data=data, content_type='application/json')
+        response = self.client.get(path='/api/add_rate_by_api', data=data, content_type='application/json',
+                                   HTTP_API_USER_KEY="SXZhbkl2YW5vdg==")
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content, b'{"response": "I receive only POST request with json content type"}')
 
@@ -80,7 +95,8 @@ class ClientRequestTestCase(TestCase):
             "time": "2021-03-05 13:19:13+00:00",
             "rate": 0
         }
-        response = self.client.post(path='/api/add_rate_by_api', data=data, content_type='application/json')
+        response = self.client.post(path='/api/add_rate_by_api', data=data, content_type='application/json',
+                                    HTTP_API_USER_KEY="SXZhbkl2YW5vdg==")
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content, b'{"rate": [{"message": "rate should be bigger than zero", "code": ""}]}')
 

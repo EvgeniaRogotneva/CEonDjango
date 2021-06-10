@@ -1,10 +1,11 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
 from datetime import datetime, timezone
-from .models import TimeAndCourse
+from .models import TimeAndCourse, Key
 from .forms import AddRate, GetRate, GetRateByApi
 import pytz
 import json
+from django.contrib.auth.models import User
 
 
 def request_validation(func):
@@ -26,6 +27,7 @@ def index(request):
 
 @request_validation
 def add_rate_by_api(request):
+    print('request.session', request.session.get_expiry_date())
     if request.content_type == 'application/json':
         content = json.loads(request.body.decode())
         form = AddRate(content)
@@ -101,3 +103,16 @@ def get_rate_for_pair(request: HttpRequest):
 def erase_all(request):
     TimeAndCourse.objects.all().delete()
     return render(request, 'currencyexchange/index.html', {'title': 'Currency Exchange', })
+
+
+def create_user(request):
+    data = json.loads(request.body)
+    user = User.objects.create_user(data['username'], data['email'], data['password'])
+    user.save()
+    key = Key(key=data['key'], user=user)
+    key.save()
+    response = {'Response': 'User ' + user.get_username() + ' has been added'}
+    return HttpResponse(json.dumps(response), status=200)
+
+def login(request):
+    pass
