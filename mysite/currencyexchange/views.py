@@ -1,11 +1,26 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render, redirect
 from datetime import datetime, timezone
-from .models import TimeAndCourse, Key
+from .models import TimeAndCourse, Key, Permission, Resource, Access
 from .forms import AddRate, GetRate, GetRateByApi
-import pytz
 import json
 from django.contrib.auth.models import User
+
+
+def permission_verify(resource, access):
+    def internal(function):
+        def wrapper(request):
+            print('header', request.headers)
+            key = Key.objects.filter(key=request.headers['Api-User-Key'])
+            permission = Permission.objects.filter(resource=resource, access=access, user=key[0].user)
+            if permission:
+                print('permission', permission[0].access, permission[0].resource, permission[0].user)
+                if access == permission[0].access and resource == permission[0].resource:
+                    return function(request)
+            response = json.dumps({'response': 'You do not have permission for this action'})
+            return HttpResponse(response, status=401)
+        return wrapper
+    return internal
 
 
 def request_validation(func):
@@ -26,6 +41,7 @@ def index(request):
 
 
 @request_validation
+@permission_verify(resource=Resource.rate, access=Access.write)
 def add_rate_by_api(request):
     print('request.session', request.session.get_expiry_date())
     if request.content_type == 'application/json':
@@ -56,6 +72,7 @@ def add_rate(request):
 
 
 @request_validation
+@permission_verify(resource=Resource.rate, access=Access.read)
 def get_rate_for_pair_by_api(request: HttpRequest):
     content = json.loads(request.body.decode())
     content['time'] = datetime.fromisoformat(content['time'])
@@ -100,15 +117,18 @@ def get_rate_for_pair(request: HttpRequest):
     return render(request, 'currencyexchange/get_rate_for_pair.html', context)
 
 
+@permission_verify(resource=Resource.rate, access=Access.delete)
 def erase_all(request):
     TimeAndCourse.objects.all().delete()
     return render(request, 'currencyexchange/index.html', {'title': 'Currency Exchange', })
 
 
+@permission_verify(resource=Resource.user, access=Access.write)
 def create_user(request):
     data = json.loads(request.body)
     user = User.objects.create_user(data['username'], data['email'], data['password'])
     user.save()
+    print('data[permissions]', data['permissions'])
     key = Key(key=data['key'], user=user)
     key.save()
     response = {'Response': 'User ' + user.get_username() + ' has been added'}
