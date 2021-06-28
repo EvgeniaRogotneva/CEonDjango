@@ -10,7 +10,6 @@ from django.contrib.auth.models import User
 def permission_verify(resource, access):
     def internal(function):
         def wrapper(request):
-            print('header', request.headers)
             key = Key.objects.filter(key=request.headers['Api-User-Key'])
             permission = Permission.objects.filter(resource=resource, access=access, user=key[0].user)
             if permission:
@@ -18,7 +17,7 @@ def permission_verify(resource, access):
                 if access == permission[0].access and resource == permission[0].resource:
                     return function(request)
             response = json.dumps({'response': 'You do not have permission for this action'})
-            return HttpResponse(response, status=401)
+            return HttpResponse(response, status=403)
         return wrapper
     return internal
 
