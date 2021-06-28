@@ -12,4 +12,5 @@ class FirstMiddleware:
         key = Key.objects.filter(key=request.headers['Api-User-Key'])
         if not key.first():
             return HttpResponse(b'{"Error": "You are not authentificated"}', status=401)
+        request.user = key.first().user
         return self._get_response(request)

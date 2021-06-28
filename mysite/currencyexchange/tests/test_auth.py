@@ -93,6 +93,6 @@ class AuthTests(TestCase):
         self.assertEqual(response.content, b'{"Error": "You are not authentificated"}')
 
     def test_erase_all(self):
-        response = self.client.get('/erase_all', HTTP_API_USER_KEY="QmlnQm9zcw==")
+        response = self.client.get('/api/erase_all', HTTP_API_USER_KEY="QmlnQm9zcw==")
         print('response', response)
         self.assertEqual(response.status_code, 200)
