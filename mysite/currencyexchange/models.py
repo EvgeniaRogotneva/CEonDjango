@@ -1,9 +1,4 @@
 from django.db import models
-import mysite.settings
-from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager, PermissionsMixin)
-from datetime import datetime, timedelta
-import jwt
-from django.conf import settings
 from django.contrib.auth.models import User
 
 
@@ -30,6 +25,23 @@ class TimeAndCourse(models.Model):
 
     def __str__(self):
         return 'currency: ' + self.currency_code + ', timestamp: ' + str(self.time) + ', rate: ' + str(self.rate)
+
+
+class Resource(models.TextChoices):
+    rate = 'rate'
+    user = 'user'
+
+
+class Access(models.TextChoices):
+    read = 'read'
+    write = 'write'
+    delete = 'delete'
+
+
+class Permission(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    access = models.CharField(max_length=30, choices=Access.choices, default=Access.read)
+    resource = models.CharField(max_length=30, choices=Resource.choices, default=Resource.rate)
 
 
 class Key(models.Model):

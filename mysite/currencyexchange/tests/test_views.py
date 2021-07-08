@@ -9,8 +9,10 @@ django.setup()
 
 from currencyexchange.views import erase_all
 from django.contrib.auth.models import User
-from currencyexchange.models import Key
-from currencyexchange.tests.test_auth import add_user_and_key_to_bd, remove_keys_and_users
+from currencyexchange.models import Key, Access, Resource
+from currencyexchange.tests.test_auth import add_user_and_key_to_bd, remove_keys_and_users, add_permission
+
+
 class UrlAvailableTestCase(TestCase):
 
     def setUp(self):
@@ -28,10 +30,6 @@ class UrlAvailableTestCase(TestCase):
         response = self.client.get('/get_rate_for_pair')
         self.assertEqual(response.status_code, 200)
 
-    def test_erase_all(self):
-        response = self.client.get('/erase_all')
-        self.assertEqual(response.status_code, 200)
-
 
 class ClientRequestTestCase(TestCase):
     @classmethod
@@ -40,10 +38,12 @@ class ClientRequestTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        add_user_and_key_to_bd('IvanIvanov', 'Ivan', 'Ivanov', 'ivanMolodec', 'ivanov.ivan@mail.ru',
+        ivan = add_user_and_key_to_bd('IvanIvanov', 'Ivan', 'Ivanov', 'ivanMolodec', 'ivanov.ivan@mail.ru',
                                False, False, True, '07.08.2021')
+        add_permission(id=ivan, access=Access.read, resource=Resource.rate)
+        add_permission(id=ivan, access=Access.write, resource=Resource.rate)
+
     def setUp(self):
-        erase_all(HttpRequest())
         self.client = Client()
         self.factory = RequestFactory()
         self.request = HttpRequest()
@@ -99,4 +99,13 @@ class ClientRequestTestCase(TestCase):
                                     HTTP_API_USER_KEY="SXZhbkl2YW5vdg==")
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content, b'{"rate": [{"message": "rate should be bigger than zero", "code": ""}]}')
+
+    def test_erase_all_no_permission(self):
+        response = self.client.get('/api/erase_all', HTTP_API_USER_KEY="SXZhbkl2YW5vdg==")
+        print('response', response)
+        self.assertEqual(response.status_code, 403)
+
+
+
+
 

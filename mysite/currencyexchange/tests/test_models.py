@@ -1,12 +1,11 @@
 import os
 import django
-from django.test import TestCase, Client
+from django.test import TestCase
 from datetime import datetime
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
 django.setup()
 
 from currencyexchange.models import TimeAndCourse
-from currencyexchange.views import erase_all
 
 
 class FieldsTestCase(TestCase):
