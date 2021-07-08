@@ -101,7 +101,7 @@ class ClientRequestTestCase(TestCase):
         self.assertEqual(response.content, b'{"rate": [{"message": "rate should be bigger than zero", "code": ""}]}')
 
     def test_erase_all_no_permission(self):
-        response = self.client.get('/erase_all', HTTP_API_USER_KEY="SXZhbkl2YW5vdg==")
+        response = self.client.get('/api/erase_all', HTTP_API_USER_KEY="SXZhbkl2YW5vdg==")
         print('response', response)
         self.assertEqual(response.status_code, 403)
 

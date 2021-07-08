@@ -1,10 +1,11 @@
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, redirect
-from datetime import datetime, timezone
-from .models import TimeAndCourse, Key, Permission, Resource, Access
-from .forms import AddRate, GetRate, GetRateByApi
+from django.shortcuts import render
+from datetime import datetime
 import json
 from django.contrib.auth.models import User
+from currencyexchange.models import TimeAndCourse, Key, Permission, Resource, Access
+from currencyexchange.forms import AddRate, GetRate, GetRateByApi
+from django.contrib.auth.decorators import login_required
 
 
 def permission_verify(resource, access):
@@ -56,6 +57,7 @@ def add_rate_by_api(request):
     return HttpResponse(response, status=400)
 
 
+@login_required
 def add_rate(request):
     errors = None
     form = AddRate(request.POST)
@@ -116,10 +118,15 @@ def get_rate_for_pair(request: HttpRequest):
     return render(request, 'currencyexchange/get_rate_for_pair.html', context)
 
 
-@permission_verify(resource=Resource.rate, access=Access.delete)
-def erase_all(request):
+@login_required()
+def _erase_all(request):
     TimeAndCourse.objects.all().delete()
     return render(request, 'currencyexchange/index.html', {'title': 'Currency Exchange', })
+
+
+@permission_verify(resource=Resource.rate, access=Access.delete)
+def erase_all(request):
+    return _erase_all(request)
 
 
 @permission_verify(resource=Resource.user, access=Access.write)
@@ -132,6 +139,7 @@ def create_user(request):
     key.save()
     response = {'Response': 'User ' + user.get_username() + ' has been added'}
     return HttpResponse(json.dumps(response), status=200)
+
 
 def login(request):
     pass
