@@ -1,9 +1,9 @@
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
-from datetime import datetime
-import json
+from datetime import datetime, timedelta
+import json, psycopg2
 from django.contrib.auth.models import User
-from currencyexchange.models import TimeAndCourse, Key, Permission, Resource, Access
+from currencyexchange.models import TimeAndCourse, Key, Permission, Resource, Access, FeatureFlagRawSql
 from currencyexchange.forms import AddRate, GetRate, GetRateByApi
 from django.contrib.auth.decorators import login_required
 
@@ -14,7 +14,6 @@ def permission_verify(resource, access):
             key = Key.objects.filter(key=request.headers['Api-User-Key'])
             permission = Permission.objects.filter(resource=resource, access=access, user=key[0].user)
             if permission:
-                print('permission', permission[0].access, permission[0].resource, permission[0].user)
                 if access == permission[0].access and resource == permission[0].resource:
                     return function(request)
             response = json.dumps({'response': 'You do not have permission for this action'})
@@ -43,7 +42,6 @@ def index(request):
 @request_validation
 @permission_verify(resource=Resource.rate, access=Access.write)
 def add_rate_by_api(request):
-    print('request.session', request.session.get_expiry_date())
     if request.content_type == 'application/json':
         content = json.loads(request.body.decode())
         form = AddRate(content)
@@ -134,7 +132,6 @@ def create_user(request):
     data = json.loads(request.body)
     user = User.objects.create_user(data['username'], data['email'], data['password'])
     user.save()
-    print('data[permissions]', data['permissions'])
     key = Key(key=data['key'], user=user)
     key.save()
     response = {'Response': 'User ' + user.get_username() + ' has been added'}
@@ -143,3 +140,70 @@ def create_user(request):
 
 def login(request):
     pass
+
+def count_average(rate):
+    pass
+
+
+def average_rate(courses):
+    cicle = 0
+    sum = 0
+    for course in courses:
+        sum += course.rate
+        cicle += 1
+    result = sum / cicle
+    return result
+
+
+def query(conn, s):
+    cur = conn.cursor()
+    cur.execute(s)
+    while True:
+        result = cur.fetchone()
+        if result is None:
+            return
+        yield result[-1]
+
+
+def get_average_course_raw_sql(date, currency_code):
+    with psycopg2.connect(host='127.0.0.1', database='currencyexchange', user='postgres', password='root') as conn:
+        conn.autocommit = True
+        s = "SELECT * FROM currencyexchange_timeandcourse WHERE currency_code = '{}' AND time >= '{}' AND time < '{}';"\
+            .format(currency_code, date, date + timedelta(days=1))
+        circle = 0
+        sum = 0
+        for row in query(conn, s):
+            sum += row
+            circle += 1
+        result = sum / circle
+        return {'Date': date.strftime('%Y-%m-%d'), 'Currency': currency_code, 'Average Course': result}
+
+
+def get_average_course(date, currency_code):
+    end = date + timedelta(days=1)
+    courses = TimeAndCourse.objects.filter(time__range=(date, end), currency_code=currency_code)
+    response = {'Date': date.strftime('%Y-%m-%d'), 'Currency': currency_code, 'Average Course': average_rate(courses)}
+    return response
+
+
+def average_course_by_day(request):
+    data = json.loads(request.body)
+    key = Key.objects.filter(key=request.headers['Api-User-Key'])
+    user_is_featured = FeatureFlagRawSql.objects.filter(user_id=key.first().user.id)
+    if user_is_featured.first():
+        response = get_average_course_raw_sql(datetime.strptime(data['time'], '%Y-%m-%d'), data['currency_code'])
+    else:
+        response = get_average_course(datetime.strptime(data['time'], '%Y-%m-%d'), data['currency_code'])
+    return HttpResponse(json.dumps(response), status=200)
+
+
+def average_course_some_days(request):
+    data = json.loads(request.body)
+    end = datetime.strptime(data['end_date'], '%Y-%m-%d')
+    start = datetime.strptime(data['start_date'], '%Y-%m-%d')
+    response = []
+    while end - start != timedelta(days=0):
+        response.append(get_average_course(start, data['currency_code']))
+        start += timedelta(days=1)
+    response.append(get_average_course(end, data['currency_code']))
+    return HttpResponse(json.dumps(response), status=200)
