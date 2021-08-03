@@ -47,3 +47,7 @@ class Permission(models.Model):
 class Key(models.Model):
     key = models.CharField(max_length=300, name='key')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+class FeatureFlagRawSql(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
